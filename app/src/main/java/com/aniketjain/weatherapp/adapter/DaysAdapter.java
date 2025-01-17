@@ -62,18 +62,18 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayViewHolder>
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url.getLink(), null, response -> {
             try {
-                update_time = response.getJSONObject("current").getLong("dt");
+                update_time = response.getJSONArray("list").getJSONObject(i).getLong("dt");
                 updated_at = new SimpleDateFormat("EEEE", Locale.ENGLISH).format(new Date((update_time * 1000) + (i * 864_000_00L)));   // i=0
 
-                condition = response.getJSONArray("daily").getJSONObject(i).getJSONArray("weather").getJSONObject(0).getInt("id");
-                sunrise = response.getJSONArray("daily").getJSONObject(i).getLong("sunrise");
-                sunset = response.getJSONArray("daily").getJSONObject(i).getLong("sunset");
+                condition = response.getJSONArray("list").getJSONObject(i).getJSONArray("weather").getJSONObject(0).getInt("id");
+                sunrise = response.getJSONObject("city").getLong("sunrise");
+                sunset = response.getJSONObject("city").getLong("sunset");
 
-                min = String.format("%.0f", response.getJSONArray("daily").getJSONObject(i).getJSONObject("temp").getDouble("min") - 273.15);
-                max = String.format("%.0f", response.getJSONArray("daily").getJSONObject(i).getJSONObject("temp").getDouble("max") - 273.15);
-                pressure = response.getJSONArray("daily").getJSONObject(i).getString("pressure");
-                wind_speed = response.getJSONArray("daily").getJSONObject(i).getString("wind_speed");
-                humidity = response.getJSONArray("daily").getJSONObject(i).getString("humidity");
+                min = String.format("%.0f", response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getDouble("temp_min") - 273.15);
+                max = String.format("%.0f", response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getDouble("temp_max") - 273.15);
+                pressure = response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getString("pressure");
+                wind_speed = response.getJSONArray("list").getJSONObject(i).getJSONObject("wind").getString("speed");
+                humidity = response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getString("humidity");
 
                 updateUI(holder);
                 hideProgressBar(holder);

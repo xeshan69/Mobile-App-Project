@@ -44,6 +44,7 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -200,6 +201,7 @@ public class HomeActivity extends AppCompatActivity {
                 LocationCord.lat = response.getJSONObject("coord").getString("lat");
                 LocationCord.lon = response.getJSONObject("coord").getString("lon");
                 getTodayWeatherInfo(cityName);
+                Log.d("checklats", LocationCord.lon);
                 // After the successfully city search the cityEt(editText) is Empty.
                 binding.layout.cityEt.setText("");
             } catch (JSONException e) {
@@ -216,21 +218,23 @@ public class HomeActivity extends AppCompatActivity {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url.getLink(), null, response -> {
             try {
                 this.name = name;
-                update_time = response.getJSONObject("current").getLong("dt");
+
+                update_time = response.getJSONArray("list").getJSONObject(0).getLong("dt");
+
                 updated_at = new SimpleDateFormat("EEEE hh:mm a", Locale.ENGLISH).format(new Date(update_time * 1000));
+                Log.d("checktime", String.valueOf(updated_at));
+                condition = response.getJSONArray("list").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getInt("id");
+                sunrise = response.getJSONObject("city").getLong("sunrise");
+                sunset = response.getJSONObject("city").getLong("sunset");
+                description = response.getJSONArray("list").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getString("main");
 
-                condition = response.getJSONArray("daily").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getInt("id");
-                sunrise = response.getJSONArray("daily").getJSONObject(0).getLong("sunrise");
-                sunset = response.getJSONArray("daily").getJSONObject(0).getLong("sunset");
-                description = response.getJSONObject("current").getJSONArray("weather").getJSONObject(0).getString("main");
-
-                temperature = String.valueOf(Math.round(response.getJSONObject("current").getDouble("temp") - 273.15));
-                min_temperature = String.format("%.0f", response.getJSONArray("daily").getJSONObject(0).getJSONObject("temp").getDouble("min") - 273.15);
-                max_temperature = String.format("%.0f", response.getJSONArray("daily").getJSONObject(0).getJSONObject("temp").getDouble("max") - 273.15);
-                pressure = response.getJSONArray("daily").getJSONObject(0).getString("pressure");
-                wind_speed = response.getJSONArray("daily").getJSONObject(0).getString("wind_speed");
-                humidity = response.getJSONArray("daily").getJSONObject(0).getString("humidity");
-
+                temperature = String.valueOf(Math.round(response.getJSONArray("list").getJSONObject(0).getJSONObject("main").getInt("temp") - 273.15));
+                min_temperature = String.format("%.0f", response.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("temp_max") - 273.15);
+                max_temperature = String.format("%.0f", response.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("temp_min") - 273.15);
+                pressure = response.getJSONArray("list").getJSONObject(0).getJSONObject("main").getString("pressure");
+                wind_speed = response.getJSONArray("list").getJSONObject(0).getJSONObject("wind").getString("speed");
+                humidity = response.getJSONArray("list").getJSONObject(0).getJSONObject("main").getString("humidity");
+                Log.d("humd", humidity);
                 updateUI();
                 hideProgressBar();
                 setUpDaysRecyclerView();
